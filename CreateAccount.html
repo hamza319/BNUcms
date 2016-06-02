@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <script src="js/jquery.min_2.js"></script>
+       <script src="js/menu.js"></script> 
+       <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"> 
+       
+       
+       <script type='text/javascript'>
+    feilds = [0,0,0,0,0];
+    
+    function checkFeilds(feild)
+    {
+     
+        if(feild === 0)
+            feilds[0]=1;
+        else if(feild === 1)
+            feilds[1]=1;
+        else if(feild === 2)
+            feilds[2]=1;
+        else if(feild === 3)
+            feilds[3]=1;
+        else if(feild === 4)
+            feilds[4]=1;
+
+        
+        if(feilds[0] === 1 && feilds[1] === 1 && feilds[2] === 1 && feilds[3] === 1 && feilds[3] === 1 && feilds[4]===1)
+            $('#submit').prop("disabled", false);
+    }
+    
+    function checkClassError(obj)
+    {
+        if(obj.className.match(/(?:^|\s)has-error(?!\S)/))
+            return true;
+        else
+            return false;
+    }
+    
+    var main = function(){
+    
+    $("#conPass, #pass").keyup(function () {
+        
+    pass1=document.getElementById("pass").value;
+    pass2=document.getElementById("conPass").value;
+    
+    par = document.getElementById("pass").parentNode;
+    par=par.parentNode;
+    
+    if(pass1==="" || pass2==="")
+    {
+        document.getElementById("ajaxShiz").innerHTML="Password cannot be left blank";
+        
+        if(!checkClassError(par))
+            par.className+=" has-error";
+    }
+    else if(pass1 !== pass2)
+    {
+        document.getElementById("ajaxShiz").innerHTML="passwords don't match";
+        
+            if(!checkClassError(par))
+                par.className+=" has-error";
+    }
+    else
+    {       
+        document.getElementById("ajaxShiz").innerHTML="Passwords match";
+        
+        if(checkClassError(par))
+        {
+                par.className="form-group has-success";
+        }
+            
+        checkFeilds(0);    
+    }
+});
+
+    $("#id").keyup(function () {
+        
+        feild=$(this).val();  
+        par = document.getElementById("id").parentNode;
+             
+        if (/(f|s)\d{4}-\d{3}/g.test(feild))
+        {
+            document.getElementById("ajaxShizID").innerHTML="";
+            
+            if(checkClassError(par))
+            {
+                par.className="form-group has-success";
+            }
+            
+            checkFeilds(1);
+        }
+        else if (feild==="")
+        {
+            document.getElementById("ajaxShizID").innerHTML="ID cannot be black";
+            
+             if(!checkClassError(par))
+                par.className+=" has-error";
+        }
+        else
+            {
+            document.getElementById("ajaxShizID").innerHTML="ID format incorrect";
+            
+             if(!checkClassError(par))
+                par.className+=" has-error";
+        }
+        
+    
+ 
+    });
+    
+    $("#fname, #lname").keyup(function () {
+        fname = document.getElementById("fname").value;
+        lname = document.getElementById("lname").value;
+        
+        par = document.getElementById("fname").parentNode;
+        par = par.parentNode;
+        
+        if(lname === "" || fname === "")
+        {
+            
+            document.getElementById("nameMsg").innerHTML="Name cannot be blank";
+            
+            if(!checkClassError(par))
+            {
+                par.className="form-group has-error";
+            }
+        }
+        else
+        {
+            document.getElementById("nameMsg").innerHTML="";
+            
+            if(checkClassError(par))
+            {
+                par.className="form-group has-success";
+            }
+            checkFeilds(2);
+        }
+        
+        
+    });
+    
+    $("#depts, #question").change(function (){
+        
+        dept= document.getElementById("depts").value;
+        q= document.getElementById("question").value;
+        a= document.getElementById("ans").value;
+        
+        if(dept!=="Select Dept.")
+        {     
+            par = document.getElementById("depts").parentNode;
+                  
+            if(!checkClassError(par))
+            {
+                par.className="form-group has-success";
+            }
+            
+            checkFeilds(4);
+        }
+        
+        if(q !== "Pick a question." && a!=="")
+        {
+            par = document.getElementById("question").parentNode;
+            document.getElementById("msgQ").innerHTML="";
+                  
+            if(checkClassError(par))
+            {
+                par.className="form-group has-success";
+            }
+            
+            checkFeilds(3);
+        }
+    });
+    
+    $("#ans").keyup(function(){
+        
+        ans=document.getElementById("ans").value;
+        q= document.getElementById("question").value;
+        
+        par = document.getElementById("question").parentNode;
+        
+        if(ans !=="" && q !== "Pick a question.")
+        {
+            document.getElementById("msgQ").innerHTML="";
+            document.getElementById("msgA").innerHTML="";
+
+                par.className="form-group has-success";
+                checkFeilds(3);
+            
+        }
+        
+        else if(ans==="")
+        {
+            document.getElementById("msgA").innerHTML="Answer cannot be blank";
+            
+            if(!checkClassError(par))
+            par.className+=" has-error";
+            
+        }
+        
+        else if(q === "Pick a question.")
+        {
+            document.getElementById("msgQ").innerHTML="Please pick a question";
+            
+            if(!checkClassError(par))
+            par.className+=" has-error";
+        }
+    });
+    
+   $('#submit').click(function (){
+    $.ajax({
+        type: "POST",
+        url: "createAccount.php",
+        data: { fname: document.getElementById("fname").value,
+                lname: document.getElementById("lname").value,
+                pass: document.getElementById("pass").value,
+                question: document.getElementById("question").value,
+                ans: document.getElementById("ans").value,
+                id: document.getElementById("id").value,
+                dept: document.getElementById("depts").value
+            },
+        cache: false,
+        success: function(result){
+            if(result === "Entry successful")
+            {
+                alert("Accout created!");
+                window.location.href = "index.php";
+            }
+            else
+                document.getElementById("a").innerHTML=result;
+        }
+    });
+   });
+    
+    };
+    $(document).ready(main);
+    
+       </script>
+       
+    </head>
+    <body>  
+        <nav class="navbar navbar-inverse ">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="pull-left" href="index.php"><img src="images/bnulogo.webp" height="70" style="padding: 2px"></a>
+                </div>
+                
+                <p class="navbar-text" style="font-size: 20px">Complaint/Request Management System</p>
+                
+                
+                
+            </div>
+        </nav>
+         <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">Register for an account.</div>
+                        <div class="panel-body">
+                            <form action="#" method="post" class="form-inline">
+                                <div class="form-group">
+                                    <label for="fname" class="control-label">Name:
+                                    <input type="text" class="form-control" placeholder="First Name" id="fname">&nbsp;&nbsp;
+                                    <input type="text" class="form-control" placeholder="Last Name" id="lname">
+                                    </label>
+                                    <span id="nameMsg" class="help-block"></span>
+                                </div>
+                                <br/><br/>
+                                <div class="form-group" >
+                                     
+                                    <label for="id" class="control-label">ID:
+                                        <input type="text" class="form-control" placeholder="Fculty ID / Enrollment#" id="id">    
+                                        <span id="ajaxShizID"></span>
+                                    </label>
+                                </div>
+                                <br/><br/>
+                                <div class="form-group">
+                                    
+                                    <label for="depts" class="control-label">Department:</label>
+                                    
+                                    <select class="form-control" id="depts">
+                                        <option disabled selected hidden>Select Dept.</option>
+                                        <option>Software Engineering</option>
+                                        <option>Management Business Computing</option>
+                                        <option>Finance Business Computing</option>
+                                    </select>
+                                    
+                                    <span id="msgDept" class="help-block"></span>
+                                </div>
+                                
+                                <br/><br/>
+                                <div class="form-group">
+                                    <label class="control-label" for="pass">Enter desired password: 
+                                        <input type="text" class="form-control" placeholder="Password" id="pass">
+                                    </label>
+                                    <label class="control-label" for="conPass">&nbsp;&nbsp;Confirm password:
+                                    <input type="text" class="form-control" placeholder="Confirm" id="conPass">
+                                    </label>
+                                    <span class="help-block" id="ajaxShiz"></span>
+                                </div>
+                                <br/><br/>
+                                
+                                <div class="form-group">
+                                    <label for="question" class="control-label">Answer a question. (for password recovery)</label>
+                                        <select class="form-control" id="question">
+                                            <option disabled selected hidden>Pick a question.</option>
+                                            <option>Name of your first pet?</option>
+                                            <option>First ever email ID?</option>
+                                            <option>This is also a question.</option>
+                                        </select>
+                                    <span id="msgQ" class="help-block"></span>
+                                    <br/>
+                                    <label for="ans" class="help-block">Answer: 
+                                        <input type="text" class="form-control" style="width: 392px" placeholder="Keep it short." id="ans">
+                                    </label>
+                                    <span id="msgA" class="help-block"></span>
+                                </div>
+                                <br/><br/>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-primary" disabled="disabled" id="submit">Submit</button>
+                                    
+                                </div>
+                            </form>
+                        </div>
+                        
+                    </div>
+                </div> 
+                               
+            </div>
+               
+        </div>
+        
+        <span id="a"></span>
+    </body>
+        
+</html>
